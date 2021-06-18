@@ -30,6 +30,8 @@ from lms.djangoapps.courseware.tests.helpers import LoginEnrollmentTestCase
 from lms.djangoapps.grades.config.waffle import WRITABLE_GRADEBOOK, waffle_flags
 from lms.djangoapps.instructor.toggles import DATA_DOWNLOAD_V2
 from lms.djangoapps.instructor.views.gradebook_api import calculate_page_info
+from openedx.core.djangoapps.course_groups.cohorts import set_course_cohorted
+from openedx.core.djangoapps.discussions.config.waffle import ENABLE_PAGES_AND_RESOURCES_MICROFRONTEND
 from openedx.core.djangoapps.site_configuration.models import SiteConfiguration
 from xmodule.modulestore import ModuleStoreEnum
 from xmodule.modulestore.tests.django_utils import TEST_DATA_SPLIT_MODULESTORE, ModuleStoreTestCase
@@ -134,6 +136,34 @@ class TestInstructorDashboard(ModuleStoreTestCase, LoginEnrollmentTestCase, XssT
             org=self.course.id.org
         )
         assert has_instructor_tab(org_researcher, self.course)
+
+    @ddt.data(
+        ('staff', False),
+        ('staff', True),
+    )
+    @ddt.unpack
+    def test_discussion_tab(self, access_role, waffle_status):
+        """
+        Verify that the Discussion tab only shows up when Pages & Resources flag is off for course
+        """
+        with override_waffle_flag(ENABLE_PAGES_AND_RESOURCES_MICROFRONTEND, waffle_status):
+            discussion_section = '<li class="nav-item"><button type="button" class="btn-link discussions_management" ' \
+                                 'data-section="discussions_management">Discussions</button></li>'
+
+            user = UserFactory.create(is_staff=access_role == 'global_staff')
+            CourseAccessRoleFactory(
+                course_id=self.course.id,
+                user=user,
+                role=access_role,
+                org=self.course.id.org
+            )
+            set_course_cohorted(self.course.id, True)
+            self.client.login(username=user.username, password="test")
+            response = self.client.get(self.url)
+            if waffle_status:
+                self.assertNotContains(response, discussion_section)
+            else:
+                self.assertContains(response, discussion_section)
 
     @ddt.data(
         ('staff', False, False),
