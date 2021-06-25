@@ -25,4 +25,6 @@ jobs:
       env:
         TEST_MODULE: ${{ matrix.tests_module }}
       run: |
+        ls -a
+        pwd
         pytest $TEST_MODULE
