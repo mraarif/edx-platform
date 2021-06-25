@@ -97,7 +97,6 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 RUN mkdir -p test_root/log/
 
-WORKDIR /
 
 USER runner
 
