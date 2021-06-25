@@ -21,7 +21,12 @@ jobs:
     - name: Fetch master to compare coverage
       run: git fetch --depth=1 origin master
 
-    - name: Run Tests Docker Image
+    - name: install requirements
+      run: |
+        pip install -r requirements/pip.txt
+        pip install -r requirements/edx/testing.txt
+
+    - name: run tests
       env:
         TEST_MODULE: ${{ matrix.tests_module }}
       run: |

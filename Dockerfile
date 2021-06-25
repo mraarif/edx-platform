@@ -68,34 +68,36 @@ RUN python3.8 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install Python requirements
-COPY setup.py setup.py
-COPY common common
-COPY openedx openedx
-COPY lms lms
-COPY cms cms
-COPY requirements/pip.txt requirements/pip.txt
-COPY requirements/edx/testing.txt requirements/edx/testing.txt
-RUN pip install -r requirements/pip.txt
-RUN pip install -r requirements/edx/testing.txt
+#COPY setup.py setup.py
+#COPY common common
+#COPY openedx openedx
+#COPY lms lms
+#COPY cms cms
+#COPY requirements/pip.txt requirements/pip.txt
+#COPY requirements/edx/testing.txt requirements/edx/testing.txt
+#RUN pip install -r requirements/pip.txt
+#RUN pip install -r requirements/edx/testing.txt
+#
+## Copy just JS requirements and install them.
+#COPY package.json package.json
+#COPY package-lock.json package-lock.json
+#RUN nodeenv /edx/app/edxapp/nodeenv --node=12.11.1 --prebuilt
+#RUN npm set progress=false && npm install
+#
+#COPY lms/envs/bok_choy.yml /edx/etc/lms.yml
+#COPY lms/envs/bok_choy.yml /edx/etc/studio.yml
 
-# Copy just JS requirements and install them.
-COPY package.json package.json
-COPY package-lock.json package-lock.json
-RUN nodeenv /edx/app/edxapp/nodeenv --node=12.11.1 --prebuilt
-RUN npm set progress=false && npm install
-
-COPY lms/envs/bok_choy.yml /edx/etc/lms.yml
-COPY lms/envs/bok_choy.yml /edx/etc/studio.yml
-
-ENV LMS_CFG /edx/etc/lms.yml
-ENV STUDIO_CFG /edx/etc/studio.yml
+#ENV LMS_CFG /edx/etc/lms.yml
+#ENV STUDIO_CFG /edx/etc/studio.yml
 
 # Copy over remaining code.
 # We do this as late as possible so that small changes to the repo don't bust
 # the requirements cache.
-COPY . .
+#COPY . .
 
 RUN mkdir -p test_root/log/
+
+WORKDIR /
 
 USER runner
 
