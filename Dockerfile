@@ -68,18 +68,20 @@ RUN python3.8 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install Python requirements
-#COPY setup.py setup.py
-#COPY common common
-#COPY openedx openedx
-#COPY lms lms
-#COPY cms cms
-#COPY requirements/pip.txt requirements/pip.txt
-#COPY requirements/edx/testing.txt requirements/edx/testing.txt
-#RUN pip install -r requirements/pip.txt
-#RUN pip install -r requirements/edx/testing.txt
+COPY setup.py setup.py
+COPY common common
+COPY openedx openedx
+COPY lms lms
+COPY cms cms
+COPY requirements/pip.txt requirements/pip.txt
+COPY requirements/edx/testing.txt requirements/edx/testing.txt
+RUN pip install -r requirements/pip.txt
+RUN pip install -r requirements/edx/testing.txt
+
+RUN rm setup.py && rm -rf requirements/ && rm -rf lms/ && rm -rf cms/ && rm -rf common && rm -rf openedx/
 #
 ## Copy just JS requirements and install them.
-#COPY package.json package.json
+#COPY package.js on package.json
 #COPY package-lock.json package-lock.json
 #RUN nodeenv /edx/app/edxapp/nodeenv --node=12.11.1 --prebuilt
 #RUN npm set progress=false && npm install
