@@ -43,4 +43,4 @@ jobs:
 
       - name: run tests
         run: |
-        pytest --splits 12 --group ${{ matrix.tests_module }}
+          pytest --splits 12 --group ${{ matrix.tests_module }}
