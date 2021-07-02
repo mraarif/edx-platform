@@ -16,16 +16,16 @@ jobs:
       matrix:
         os: [self-hosted]
         tests_module: [ "cms --splits 1 --group 1",
-                        "cms --splits 1 --group 2",
+                        "cms --splits 2 --group 2",
                         "common --splits 1 --group 1",
-                        "lms --splits 1 --group 1",
-                        "lms --splits 1 --group 2",
-                        "lms --splits 1 --group 3",
-                        "lms --splits 1 --group 4",
-                        "lms --splits 1 --group 5",
-                        "lms --splits 1 --group 6",
+                        "lms --splits 6 --group 1",
+                        "lms --splits 6 --group 2",
+                        "lms --splits 6 --group 3",
+                        "lms --splits 6 --group 4",
+                        "lms --splits 6 --group 5",
+                        "lms --splits 6 --group 6",
                         "openedx --splits 1 --group 1",
-                        "openedx --splits 1 --group 2",
+                        "openedx --splits 2 --group 2",
         ]
 #          [
 #            "lms/djangoapps/badges/ lms/djangoapps/branding/ lms/djangoapps/bulk_email/ lms/djangoapps/bulk_enroll/ lms/djangoapps/bulk_user_retirement/ lms/djangoapps/ccx/ lms/djangoapps/certificates/ lms/djangoapps/commerce/",
