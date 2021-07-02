@@ -15,7 +15,19 @@ jobs:
     strategy:
       matrix:
         os: [self-hosted]
-        tests_module: [1,2,3,4,5,6,7,8,9,10,11,12]
+        tests_module:
+          - module: lms
+            split: 6
+            group: 1
+          - module: openedx
+            split: 2
+            group: 2
+          - module: cms
+            split: 2
+            group: 3
+          - module: common
+            split: 1
+            group: 4
 #          [
 #            "lms/djangoapps/badges/ lms/djangoapps/branding/ lms/djangoapps/bulk_email/ lms/djangoapps/bulk_enroll/ lms/djangoapps/bulk_user_retirement/ lms/djangoapps/ccx/ lms/djangoapps/certificates/ lms/djangoapps/commerce/",
 #            "lms/djangoapps/course_api/ lms/djangoapps/course_blocks/ lms/djangoapps/course_home_api/ lms/djangoapps/course_wiki/ lms/djangoapps/coursewarehistoryextended/ lms/djangoapps/dashboard/ lms/djangoapps/debug/",
@@ -43,4 +55,4 @@ jobs:
 
       - name: run tests
         run: |
-          pytest --splits 12 --group ${{ matrix.tests_module }}
+          pytest ${{ matrix.tests_module.module }} --splits ${{ matrix.tests_module.split }} --group ${{ matrix.tests_module.group }}
