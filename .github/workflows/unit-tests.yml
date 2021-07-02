@@ -54,4 +54,4 @@ jobs:
 
       - name: run tests
         run: |
-          pytest --store-durations ${{ matrix.tests_module }}
+          pytest ${{ matrix.tests_module }} --store-durations
