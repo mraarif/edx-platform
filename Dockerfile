@@ -1,6 +1,6 @@
-FROM ubuntu:focal as base
+FROM summerwind/actions-runner:v2.278.0-ubuntu-20.04
 
-# Warning: This file is experimental.
+USER root
 
 # Install system requirements
 RUN apt-get update && \
@@ -24,6 +24,7 @@ RUN apt-get update && \
     # openedx requirements
     gettext \
     gfortran \
+    gnupg \
     graphviz \
     libffi-dev \
     libfreetype6-dev \
@@ -36,9 +37,13 @@ RUN apt-get update && \
     libxml2-dev \
     libxmlsec1-dev \
     libxslt1-dev \
+    iputils-ping \
     # lynx: Required by https://github.com/edx/edx-platform/blob/b489a4ecb122/openedx/core/lib/html_to_text.py#L16
     lynx \
     ntp \
+    packagekit-gtk3-module \
+    xvfb \
+    wget \
     pkg-config \
     python3-dev \
     python3-venv \
@@ -69,40 +74,32 @@ COPY openedx openedx
 COPY lms lms
 COPY cms cms
 COPY requirements/pip.txt requirements/pip.txt
-COPY requirements/edx/base.txt requirements/edx/base.txt
+COPY requirements/edx/testing.txt requirements/edx/testing.txt
 RUN pip install -r requirements/pip.txt
-RUN pip install -r requirements/edx/base.txt
+RUN pip install -r requirements/edx/testing.txt
 
-# Copy just JS requirements and install them.
-COPY package.json package.json
-COPY package-lock.json package-lock.json
-RUN nodeenv /edx/app/edxapp/nodeenv --node=12.11.1 --prebuilt
-RUN npm set progress=false && npm install
+RUN rm setup.py && rm -rf requirements/ && rm -rf lms/ && rm -rf cms/ && rm -rf common && rm -rf openedx/
+#
+## Copy just JS requirements and install them.
+#COPY package.js on package.json
+#COPY package-lock.json package-lock.json
+#RUN nodeenv /edx/app/edxapp/nodeenv --node=12.11.1 --prebuilt
+#RUN npm set progress=false && npm install
+#
+#COPY lms/envs/bok_choy.yml /edx/etc/lms.yml
+#COPY lms/envs/bok_choy.yml /edx/etc/studio.yml
 
-ENV LMS_CFG /edx/etc/lms.yml
-ENV STUDIO_CFG /edx/etc/studio.yml
+#ENV LMS_CFG /edx/etc/lms.yml
+#ENV STUDIO_CFG /edx/etc/studio.yml
 
 # Copy over remaining code.
 # We do this as late as possible so that small changes to the repo don't bust
 # the requirements cache.
-COPY . .
+#COPY . .
 
-FROM base as lms
-ENV SERVICE_VARIANT lms
-ENV DJANGO_SETTINGS_MODULE lms.envs.production
-EXPOSE 8000
-CMD gunicorn -c /edx/app/edxapp/edx-platform/lms/docker_lms_gunicorn.py --name lms --bind=0.0.0.0:8000 --max-requests=1000 --access-logfile - lms.wsgi:application
+RUN mkdir -p test_root/log/
 
-FROM lms as lms-newrelic
-RUN pip install newrelic
-CMD newrelic-admin run-program gunicorn -c /edx/app/edxapp/edx-platform/lms/docker_lms_gunicorn.py --name lms --bind=0.0.0.0:8000 --max-requests=1000 --access-logfile - lms.wsgi:application
 
-FROM base as studio
-ENV SERVICE_VARIANT cms
-ENV DJANGO_SETTINGS_MODULE cms.envs.production
-EXPOSE 8010
-CMD gunicorn -c /edx/app/edxapp/edx-platform/cms/docker_cms_gunicorn.py --name cms --bind=0.0.0.0:8010 --max-requests=1000 --access-logfile - cms.wsgi:application
+USER runner
 
-FROM studio as studio-newrelic
-RUN pip install newrelic
-CMD newrelic-admin run-program gunicorn -c /edx/app/edxapp/edx-platform/cms/docker_cms_gunicorn.py --name cms --bind=0.0.0.0:8010 --max-requests=1000 --access-logfile - cms.wsgi:application
+CMD ["/entrypoint.sh"]
